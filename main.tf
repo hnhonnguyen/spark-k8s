@@ -38,7 +38,7 @@ resource "kubernetes_secret" "airflow_ssh_secret" {
   }
 
   data = {
-    gitSshKey = file("/Users/hnhonnguyen/.ssh/id_e25519_github")
+    gitSshKey = file("~/.ssh/id_e25519_github")
   }
 
   type       = "Opaque"
@@ -58,22 +58,22 @@ resource "helm_release" "airflow" {
   depends_on = [kubernetes_secret.airflow_ssh_secret]
 }
 
-# resource "kubernetes_cluster_role_binding" "airflow_worker" {
-#   metadata {
-#     name = "airflow-worker"
-#   }
-#   role_ref {
-#     api_group = "rbac.authorization.k8s.io"
-#     kind      = "ClusterRole"
-#     name      = "cluster-admin"
-#   }
-#   subject {
-#     kind      = "ServiceAccount"
-#     name      = "airflow-worker"
-#     namespace = "airflow"
-#   }
-#   depends_on = [helm_release.airflow]
-# }
+resource "kubernetes_cluster_role_binding" "airflow_worker" {
+  metadata {
+    name = "airflow-worker"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "airflow-worker"
+    namespace = "airflow"
+  }
+  depends_on = [helm_release.airflow]
+}
 
 #-------------------------------------------------------------
 #                             SPARK
