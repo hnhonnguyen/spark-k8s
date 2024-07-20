@@ -1,0 +1,2 @@
+docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=test -d postgres
+docker run -e DB_NAME=test -e DB_USER=postgres -e DB_PASSWORD=postgres  -e DB_HOST=host.docker.internal -e DB_PORT=5432 my-etl-container

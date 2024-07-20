@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: myjob
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: insert-db-container
+            image: insert-db-container
+            imagePullPolicy: IfNotPresent
+            resources:
+              limits:
+                memory: 150M
+                cpu: 100m
+            envFrom: # using envFrom instead of env
+              - configMapRef: # referencing the ConfigMap
+                  name: postgres-config
+          restartPolicy: OnFailure

@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etl-migrate-data
+spec:
+  schedule: "*/3 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: my-etl-container
+            image: my-etl-container
+            imagePullPolicy: IfNotPresent
+            resources:
+              limits:
+                memory: 150M
+                cpu: 100m
+            envFrom: # using envFrom instead of env
+              - configMapRef: # referencing the ConfigMap
+                  name: postgres-config
+          restartPolicy: OnFailure
