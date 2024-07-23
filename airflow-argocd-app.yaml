@@ -6,12 +6,18 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://airflow.apache.org
-    targetRevision: 1.14.0
-    path: airflow
-    helm:
-      valueFiles:
-        - /airflow_src/values.yaml
+    - repoURL: https://airflow.apache.org
+      targetRevision: 1.14.0
+      chart: airflow
+      helm:
+        valueFiles:
+        - $values/airflow_src/values.yaml
+
+    - repoURL: 'git@github.com:hnhonnguyen/spark-k8s.git'
+      targetRevision: main
+      ref: values
+
+    
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: airflow
