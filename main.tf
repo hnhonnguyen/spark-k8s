@@ -85,6 +85,36 @@ resource "kubernetes_namespace" "spark_ns" {
   }
 }
 
+resource "kubernetes_cluster_role" "full_access_role" {
+  metadata {
+    name = "full-access-role"
+  }
+
+  rule {
+    api_groups = ["*"]
+    resources  = ["*"]
+    verbs      = ["*"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "full_access_binding" {
+  metadata {
+    name = "full-access-binding"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = kubernetes_cluster_role.full_access_role.metadata[0].name
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = "spark-operator"
+    namespace = "spark-operator"
+  }
+}
+
 resource "helm_release" "spark_operator" {
   repository = "https://kubeflow.github.io/spark-operator"
   chart      = "spark-operator"
@@ -96,10 +126,6 @@ resource "helm_release" "spark_operator" {
     value = "true"
   }
 
-  # set {
-  #   name  = "webhook.namespaceSelector"
-  #   value = "spark-operator-webhook-enabled=true"
-  # }
   set {
     name  = "webhook.port"
     value = "443"
