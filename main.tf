@@ -100,6 +100,10 @@ resource "helm_release" "spark_operator" {
     name  = "webhook.namespaceSelector"
     value = "spark-operator-webhook-enabled=true"
   }
+  set {
+    name  = "webhook.port"
+    value = "443"
+  }
 
   depends_on = [kubernetes_namespace.spark_ns]
 }
