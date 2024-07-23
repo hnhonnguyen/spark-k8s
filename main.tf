@@ -14,19 +14,23 @@ provider "helm" {
 #                             ARGOCD
 #-------------------------------------------------------------
 
-resource "kubernetes_namespace" "argocd_ns" {
+resource "helm_release" "argocd" {
+  name       = "argocd"
+  repository = "https://argoproj.github.io/argo-helm"
+  chart      = "argo-cd"
+  version    = "4.5.2"
+
+  namespace = "argocd"
+
+  create_namespace = true
+}
+
+
+data "kubernetes_service" "argocd_server" {
   metadata {
-    name = "argocd"
+    name      = "argocd-server"
+    namespace = helm_release.argocd.namespace
   }
-}
-
-data "http" "argocd_manifest" {
-  url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
-}
-
-resource "kubectl_manifest" "argocd" {
-  yaml_body          = data.http.argocd_manifest.response_body
-  override_namespace = "argocd"
 }
 
 
@@ -54,18 +58,18 @@ resource "kubernetes_secret" "airflow_ssh_secret" {
   depends_on = [kubernetes_namespace.airflow_ns]
 }
 
-resource "helm_release" "airflow" {
-  repository = "https://airflow.apache.org"
-  chart      = "airflow"
-  name       = "airflow"
-  version    = "1.14.0"
-  namespace  = "airflow"
+# resource "helm_release" "airflow" {
+#   repository = "https://airflow.apache.org"
+#   chart      = "airflow"
+#   name       = "airflow"
+#   version    = "1.14.0"
+#   namespace  = "airflow"
 
-  values = [
-    file("${path.root}/airflow_src/values.yaml")
-  ]
-  depends_on = [kubernetes_secret.airflow_ssh_secret]
-}
+#   values = [
+#     file("${path.root}/airflow_src/values.yaml")
+#   ]
+#   depends_on = [kubernetes_secret.airflow_ssh_secret]
+# }
 
 resource "kubernetes_cluster_role_binding" "airflow_worker" {
   metadata {
@@ -124,22 +128,22 @@ resource "kubernetes_cluster_role_binding" "full_access_binding" {
   }
 }
 
-resource "helm_release" "spark_operator" {
-  repository = "https://kubeflow.github.io/spark-operator"
-  chart      = "spark-operator"
-  name       = "spark-operator"
-  namespace  = "spark-operator"
+# resource "helm_release" "spark_operator" {
+#   repository = "https://kubeflow.github.io/spark-operator"
+#   chart      = "spark-operator"
+#   name       = "spark-operator"
+#   namespace  = "spark-operator"
 
-  set {
-    name  = "webhook.enable"
-    value = "true"
-  }
+#   set {
+#     name  = "webhook.enable"
+#     value = "true"
+#   }
 
-  set {
-    name  = "webhook.port"
-    value = "443"
-  }
+#   set {
+#     name  = "webhook.port"
+#     value = "443"
+#   }
 
-  depends_on = [kubernetes_namespace.spark_ns]
-}
+#   depends_on = [kubernetes_namespace.spark_ns]
+# }
 
