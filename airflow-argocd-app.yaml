@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
+  sources:
     - repoURL: https://airflow.apache.org
       targetRevision: 1.14.0
       chart: airflow
