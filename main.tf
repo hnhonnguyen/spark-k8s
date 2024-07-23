@@ -25,7 +25,7 @@ data "http" "argocd_manifest" {
 }
 
 resource "kubectl_manifest" "argocd" {
-  yaml_body          = data.http.argocd_manifest.body
+  yaml_body          = data.http.argocd_manifest.response_body
   override_namespace = "argocd"
 }
 
