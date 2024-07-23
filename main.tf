@@ -96,10 +96,10 @@ resource "helm_release" "spark_operator" {
     value = "true"
   }
 
-  set {
-    name  = "webhook.namespaceSelector"
-    value = "spark-operator-webhook-enabled=true"
-  }
+  # set {
+  #   name  = "webhook.namespaceSelector"
+  #   value = "spark-operator-webhook-enabled=true"
+  # }
   set {
     name  = "webhook.port"
     value = "443"
