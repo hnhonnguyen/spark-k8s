@@ -1,14 +1,3 @@
-terraform {
-  required_providers {
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-    }
-    helm = {
-      source = "hashicorp/helm"
-    }
-  }
-}
-
 provider "kubernetes" {
   config_context = "minikube"
   config_path    = "~/.kube/config"
