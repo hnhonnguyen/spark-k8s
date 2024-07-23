@@ -22,6 +22,26 @@ provider "helm" {
 }
 
 #-------------------------------------------------------------
+#                             ARGOCD
+#-------------------------------------------------------------
+
+resource "kubernetes_namespace" "argocd_ns" {
+  metadata {
+    name = "argocd"
+  }
+}
+
+data "http" "argocd_manifest" {
+  url = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
+}
+
+resource "kubectl_manifest" "argocd" {
+  yaml_body          = data.http.argocd_manifest
+  override_namespace = "argocd"
+}
+
+
+#-------------------------------------------------------------
 #                             AIRFLOW
 #-------------------------------------------------------------
 
