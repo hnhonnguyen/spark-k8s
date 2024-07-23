@@ -92,8 +92,13 @@ resource "helm_release" "spark_operator" {
   namespace  = "spark-operator"
 
   set {
-    name  = "webhook.enableWebhook"
+    name  = "webhook.enable"
     value = "true"
+  }
+
+  set {
+    name  = "webhook.namespaceSelector"
+    value = "spark-webhook-enabled=true"
   }
 
   depends_on = [kubernetes_namespace.spark_ns]
