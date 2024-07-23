@@ -85,7 +85,6 @@ resource "kubernetes_cluster_role_binding" "airflow_worker" {
     name      = "airflow-worker"
     namespace = "airflow"
   }
-  depends_on = [helm_release.airflow]
 }
 
 #-------------------------------------------------------------
