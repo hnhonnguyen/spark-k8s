@@ -682,7 +682,7 @@ workers:
   extraContainers: 
     - name: dags-s3-sync
       image: amazonlinux:latest
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       envFrom:
         {{- include "airflow.envFrom" . | indent 4 }}
       env:
@@ -929,7 +929,7 @@ scheduler:
   extraContainers: 
     - name: dags-s3-sync
       image: amazonlinux:latest
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       envFrom:
         {{- include "airflow.envFrom" . | indent 4 }}
       env:
@@ -1349,7 +1349,7 @@ webserver:
   extraContainers:
     - name: dags-s3-sync
       image: amazonlinux:latest
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       envFrom:
         {{- include "airflow.envFrom" . | indent 4 }}
       env:
