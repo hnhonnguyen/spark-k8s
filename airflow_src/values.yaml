@@ -679,7 +679,47 @@ workers:
   # Launch additional containers into worker.
   # Note: If used with KubernetesExecutor, you are responsible for signaling sidecars to exit when the main
   # container finishes so Airflow can continue the worker shutdown process!
-  extraContainers: []
+  extraContainers: 
+    - name: dags-s3-sync
+      image: amazonlinux:latest
+      imagePullPolicy: Always
+      envFrom:
+        {{- include "airflow.envFrom" . | indent 4 }}
+      env:
+        - name: AWS_BUCKET
+          value: "vendor1-poc-emr-20240725114624169500000001"
+        - name: KEY_PATH
+          value: "dags"
+        - name: DEST_PATH
+          value: {{ .Values.dags.workDir | quote}}
+        - name: INTERVAL
+          value: 10
+        - name: AIRFLOW_USER_UID
+          value: {{ .Values.airflow.image.uid | quote }}
+        {{- include "airflow.env" . | indent 4 }}
+      command:
+      # Sync all files from s3 to the dags folder, grant permissions to the airflow user and sleep
+        - /bin/sh
+        - -c
+        - >
+          yum install -y aws-cli bash && \
+          while true; do
+            echo "---------------------------------------------------------------------------"
+            echo "Syncing s3://${AWS_BUCKET}/${KEY_PATH} to ${DEST_PATH}"
+            echo "aws s3 sync s3://${AWS_BUCKET}/${KEY_PATH} ${DEST_PATH} --exclude "*.pyc" --delete --exact-timestamps"
+            aws s3 sync s3://${AWS_BUCKET}/${KEY_PATH} ${DEST_PATH} --exclude "*.pyc" --delete --exact-timestamps
+            echo "Finish syncing s3://${AWS_BUCKET}/${KEY_PATH} to ${DEST_PATH}"
+            echo "Grant read access to ${DEST_PATH} for Airflow user ${AIRFLOW_USER_UID}"
+            echo "chown -R ${AIRFLOW_USER_UID} ${DEST_PATH}"
+            chown -R ${AIRFLOW_USER_UID} ${DEST_PATH}
+            echo "Sleep for ${INTERVAL} seconds"
+            echo "sleep ${INTERVAL}"
+            sleep ${INTERVAL};
+          done
+      volumeMounts:
+        - name: dags-data
+          mountPath: {{ .Values.dags.workDir }}
+
   # Add additional init containers into workers.
   extraInitContainers: []
 
@@ -886,7 +926,46 @@ scheduler:
   safeToEvict: true
 
   # Launch additional containers into scheduler.
-  extraContainers: []
+  extraContainers: 
+    - name: dags-s3-sync
+      image: amazonlinux:latest
+      imagePullPolicy: Always
+      envFrom:
+        {{- include "airflow.envFrom" . | indent 4 }}
+      env:
+        - name: AWS_BUCKET
+          value: "vendor1-poc-emr-20240725114624169500000001"
+        - name: KEY_PATH
+          value: "dags"
+        - name: DEST_PATH
+          value: {{ .Values.dags.workDir | quote}}
+        - name: INTERVAL
+          value: 10
+        - name: AIRFLOW_USER_UID
+          value: {{ .Values.airflow.image.uid | quote }}
+        {{- include "airflow.env" . | indent 4 }}
+      command:
+      # Sync all files from s3 to the dags folder, grant permissions to the airflow user and sleep
+        - /bin/sh
+        - -c
+        - >
+          yum install -y aws-cli bash && \
+          while true; do
+            echo "---------------------------------------------------------------------------"
+            echo "Syncing s3://${AWS_BUCKET}/${KEY_PATH} to ${DEST_PATH}"
+            echo "aws s3 sync s3://${AWS_BUCKET}/${KEY_PATH} ${DEST_PATH} --exclude "*.pyc" --delete --exact-timestamps"
+            aws s3 sync s3://${AWS_BUCKET}/${KEY_PATH} ${DEST_PATH} --exclude "*.pyc" --delete --exact-timestamps
+            echo "Finish syncing s3://${AWS_BUCKET}/${KEY_PATH} to ${DEST_PATH}"
+            echo "Grant read access to ${DEST_PATH} for Airflow user ${AIRFLOW_USER_UID}"
+            echo "chown -R ${AIRFLOW_USER_UID} ${DEST_PATH}"
+            chown -R ${AIRFLOW_USER_UID} ${DEST_PATH}
+            echo "Sleep for ${INTERVAL} seconds"
+            echo "sleep ${INTERVAL}"
+            sleep ${INTERVAL};
+          done
+      volumeMounts:
+        - name: dags-data
+          mountPath: {{ .Values.dags.workDir }}
   # Add additional init containers into scheduler.
   extraInitContainers: []
 
@@ -1267,7 +1346,46 @@ webserver:
     password: admin
 
   # Launch additional containers into webserver.
-  extraContainers: []
+  extraContainers:
+    - name: dags-s3-sync
+      image: amazonlinux:latest
+      imagePullPolicy: Always
+      envFrom:
+        {{- include "airflow.envFrom" . | indent 4 }}
+      env:
+        - name: AWS_BUCKET
+          value: "vendor1-poc-emr-20240725114624169500000001"
+        - name: KEY_PATH
+          value: "dags"
+        - name: DEST_PATH
+          value: {{ .Values.dags.workDir | quote}}
+        - name: INTERVAL
+          value: 10
+        - name: AIRFLOW_USER_UID
+          value: {{ .Values.airflow.image.uid | quote }}
+        {{- include "airflow.env" . | indent 4 }}
+      command:
+      # Sync all files from s3 to the dags folder, grant permissions to the airflow user and sleep
+        - /bin/sh
+        - -c
+        - >
+          yum install -y aws-cli bash && \
+          while true; do
+            echo "---------------------------------------------------------------------------"
+            echo "Syncing s3://${AWS_BUCKET}/${KEY_PATH} to ${DEST_PATH}"
+            echo "aws s3 sync s3://${AWS_BUCKET}/${KEY_PATH} ${DEST_PATH} --exclude "*.pyc" --delete --exact-timestamps"
+            aws s3 sync s3://${AWS_BUCKET}/${KEY_PATH} ${DEST_PATH} --exclude "*.pyc" --delete --exact-timestamps
+            echo "Finish syncing s3://${AWS_BUCKET}/${KEY_PATH} to ${DEST_PATH}"
+            echo "Grant read access to ${DEST_PATH} for Airflow user ${AIRFLOW_USER_UID}"
+            echo "chown -R ${AIRFLOW_USER_UID} ${DEST_PATH}"
+            chown -R ${AIRFLOW_USER_UID} ${DEST_PATH}
+            echo "Sleep for ${INTERVAL} seconds"
+            echo "sleep ${INTERVAL}"
+            sleep ${INTERVAL};
+          done
+      volumeMounts:
+        - name: dags-data
+          mountPath: {{ .Values.dags.workDir }}
   # Add additional init containers into webserver.
   extraInitContainers: []
 
